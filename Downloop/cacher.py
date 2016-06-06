@@ -4,7 +4,7 @@ import time
 import random
 
 
-def store_image(filename, hashid, shard):
+def cacher_store_image(filename, hashid, shard):
     """
     Given a hashid and a file location, store data into the cache so we can later relate the hashid to the file location.
 
@@ -36,7 +36,7 @@ def create_hash():
     return hashid
 
 
-def retrieve_image(hashid):
+def cacher_get_image(hashid):
     """
     Responsible for mapping a hash to a file.
 
@@ -47,6 +47,8 @@ def retrieve_image(hashid):
     if test:
         fileloc = rdb.hget(hashid, "filename")
         shard = rdb.hget(hashid, "shard")
+        rdb.hincrby(hashid, "hits", 1)
+        rdb.hset(hashid, "lasthit", time.time())
         return {'filename': fileloc.decode('utf-8'), 'shard': int(shard)}
     else:
         return None
